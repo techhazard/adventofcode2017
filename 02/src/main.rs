@@ -29,12 +29,41 @@ fn generate_checksum(row: [u16; 16]) -> u16 {
     let max = row.iter().fold(0, |acc, &x| max(acc,x));
     max - min
 }
+
+fn generate_checksum2(row: [u16; 16]) -> u16 {
+
+    let mut numbers : Vec<u16> = row.iter().map(|&x| x).collect();
+
+    for number in numbers.iter().enumerate() {
+        let (index, teller) = number;
+        let mut numberlist : Vec<u16> = numbers.iter().map(|&x| x).collect();
+        println!("{:?}", &teller);
+
+        for noemer in numberlist.drain(index..) {
+            if *teller == noemer {
+                continue;
+            }
+
+            if teller % noemer == 0 {
+                println!("\t{}/{}", &teller, &noemer);
+                return teller / noemer
+            } else if noemer % teller == 0 {
+                println!("\t{}/{}", &noemer, &teller);
+                return noemer / teller
+            }
+        }
+
+    }
+    0
+}
+
 fn main() {
     let mut checksums : Vec<u16> = vec![];
 
     for &row in get_input().into_iter() {
-        checksums.push(generate_checksum(row))
+        checksums.push(generate_checksum2(row));
     }
     let checksum_of_checksums : u16 = checksums.into_iter().sum();
-    print!("{}", checksum_of_checksums);
+
+    println!("\n\n{}", checksum_of_checksums);
 }
