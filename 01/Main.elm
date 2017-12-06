@@ -46,17 +46,53 @@ bla a b =
         False ->
             0
 
+type alias Index =
+    Int
 
-filterSame : List Int -> List Int
+type alias Value =
+    Int
+
+type alias Length =
+    Int
+
+type alias Numberlist =
+    List Value
+
+filterSameHalfway : Numberlist -> Numberlist
+filterSameHalfway numberList =
+    let
+        numlistLen : Length
+        numlistLen = List.length numberList
+    in
+        numberList
+        |> List.indexedMap (,)
+        |> List.filter (isSameAsHalfway numberList)
+        |> List.map (\(i,v) -> v)
+
+isSameAsHalfway : Numberlist -> (Index, Value) -> Bool
+isSameAsHalfway numlist startIndexPair =
+    let
+        (startIndex, value) = startIndexPair
+        num : Value
+        num = findItemAtIndex startIndex numlist 0
+
+        halfWayNum : Value
+        halfWayNum = findHalfway numlist startIndex
+    in
+        num == halfWayNum
+
+
+
+filterSame : Numberlist -> Numberlist
 filterSame numberList =
     let
-        start : Maybe Int
+        start : Maybe Value
         start = List.head numberList
 
-        end : Maybe Int
+        end : Maybe Value
         end   = List.head (List.reverse numberList)
 
-        numlist : List Int
+        numlist : Numberlist
         numlist=if Maybe.withDefault False (Maybe.map2 (==) start end) then
             [(Maybe.withDefault 0 start)]
         else
@@ -65,11 +101,21 @@ filterSame numberList =
         filterSameRec numberList numlist
 
 
+filterSameHalfwayRec : Numberlist -> Index -> Numberlist -> Numberlist
+filterSameHalfwayRec numberList index numlist =
+    let
+        index : Int
+        index =
+            0
 
-
-
-
-
+        head : Int
+        head =
+            Maybe.withDefault 0 (List.head numberList)
+    in
+        if head == (findHalfway numberList index) then
+            []
+        else
+            []
 
 
 filterSameRec : List Int -> List Int -> List Int
@@ -100,13 +146,35 @@ filterSameRec numberList numlist_in =
 
 
 
+findHalfway : List Int -> Int -> Int
+findHalfway list index =
+    let
+        length = List.length list
+        halfLen = length // 2
+        halfWayIndex = (halfLen + index) % length
+    in
+        findItemAtIndex halfWayIndex list 0
+
+findItemAtIndex : Int -> List Int -> Int -> Int
+findItemAtIndex index list currindex =
+    let
+        hd : Int
+        hd = Maybe.withDefault 0 (List.head list)
+        tail : List Int
+        tail = Maybe.withDefault [] (List.tail list)
+        newindex = currindex + 1
+    in
+        if currindex == index then
+            hd
+        else
+            findItemAtIndex index tail newindex
+
 
 
 runProgram : List Int -> String
 runProgram numberList =
     numberList
-    --[0,0,1,1,2,4,2,2]
-    |> filterSame
+    |> filterSameHalfway
     |> List.sum
     |> toString
 
@@ -116,4 +184,23 @@ runProgram numberList =
 
 
 main =
-    text (runProgram inputNumbers)
+    Html.div []
+    [ --text (runProgram inputNumbers)
+    --, text "\n"
+    --,
+    Html.p []
+    [ [1,2,1,2]
+      |> runProgram
+      |> text
+    ]
+    , Html.p []
+    [ [1,2,2,1]
+      |> runProgram
+      |> text
+    ]
+    , Html.p []
+    [ inputNumbers
+      |> runProgram
+      |> text
+    ]
+    ]
