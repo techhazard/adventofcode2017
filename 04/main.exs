@@ -14,23 +14,16 @@ defmodule Main do
         false
       x ->
         [ head | tail ] = words
-        IO.puts head
-        IO.puts tail
-        if Enum.member?(tail,head) do
-          true
-        else
-            find_matches(tail)
-        end
+        Enum.member?(tail, head) || find_matches(tail)
       end
   end
 
 
   @spec find_matches_for_line(String) :: Bool
   def find_matches_for_line(line) do
-    a = find_matches(String.split(line, " ", [trim: true]))
-    IO.puts "line:"
-    IO.puts a
-    a
+    words = String.split(line, " ", [trim: true])
+    sorted_words = Enum.map(words, fn(x) -> String.to_charlist(x) |> Enum.sort |> List.to_string end)
+    find_matches(sorted_words)
   end
 
 end
