@@ -4,3 +4,6 @@ version = "0.1.0"
 authors = ["Vince van Oosten <techhazard@codeforyouand.me>"]
 
 [dependencies]
+[dependencies.nom]
+version = "^3"
+features = ["nightly"]
