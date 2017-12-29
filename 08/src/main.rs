@@ -23,6 +23,7 @@ fn main() {
 	let instructions = advent8::get_instructions();
 
     let mut registers = Registers::new();
+    let mut max_register_value : Value = 0;
 
     for ref instruction in instructions.iter() {
         println!("{:?}", instruction);
@@ -40,6 +41,8 @@ fn main() {
                 Command::Increment(val) => *register_value += val,
                 Command::Decrement(val) => *register_value -= val,
             }
+
+            max_register_value = std::cmp::max(max_register_value, *register_value);
         }
 
     }
@@ -47,6 +50,5 @@ fn main() {
     println!("{:?}", registers);
     let max_value = registers.iter().map(|(_, &x)| x).max();
     println!("{:?}", max_value);
-
-
+    println!("{:?}", max_register_value);
 }
