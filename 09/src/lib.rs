@@ -74,19 +74,7 @@ macro_rules! b {
 /// mod tests {
 ///     use nom;
 ///
-/// # /*
-///     #[test]
-/// # */
-/// #   pub
-///     fn escape() {
-///         make_test!(escape, ["!!", Done, "", ""]);
-///         make_test!(escape, ["!<", Done, "", ""]);
-///         make_test!(escape, ["!>", Done, "", ""]);
-///         make_test!(escape, ["!{", Done, "", ""]);
-///         make_test!(escape, ["!}", Done, "", ""]);
-///         make_test!(escape, ["!!a", Done, "a", ""]);
-///         make_test!(escape, ["A", Tag]);
-///     }
+///     make_test!(escape, ["!!", Done, "", ""]);
 /// }
 ///
 /// # fn main() {
@@ -96,24 +84,43 @@ macro_rules! b {
 #[macro_export]
 macro_rules! make_test {
 
-    ($funcname:ident, [$testcase:tt], $rest:tt) => {{
-        make_test!($funcname, [$testcase]);
-       make_test!($funcname, $rest);
-    }};
+     ($funcname:ident, $($testcase:tt),+) => {
+      /*
+        #[test]
+      */
+      pub
+         fn $funcname() {
+             make_testcases!($funcname, $($testcase),+);
+         }
+     };
 
-    ($funcname:ident, [$input:expr, $experr:ident]) => {
-        assert_eq!(
-            super::$funcname(b!($input)),
-            nom::IResult::Error(nom::ErrorKind::$experr));
-    };
+     ($should:ident $funcname:ident, $($testcase:tt),+) => {
+         #[$should]
+         #[test]
+         fn $funcname() {
+             make_testcases!($funcname, $($testcase),+);
+         }
+     };
 
-    ($funcname:ident, [$input:expr, $resulttype:ident, $($expout:expr),+]) => {
-        assert_eq!(
-            super::$funcname(b!($input)),
-            nom::IResult::$resulttype($(b!($expout)),+)
-        );
-    };
-}
+ }
 
 
-mod parsers;
+
+#[macro_export]
+ macro_rules! make_testcases {
+
+     ($funcname:ident, $testcase:tt, $($testcases:tt),+) => {
+             make_testcases!($funcname, $testcase);
+             make_testcases!($funcname, $($testcases),+);
+     };
+
+     ($funcname:ident, [$input:expr, $outputType:ident, $($output:expr),+]) => {
+         assert_eq!(
+             super::$funcname($input.as_bytes())
+             ,
+             nom::IResult::$outputType($($output.as_bytes()),+)
+         );
+     };
+ }
+
+
